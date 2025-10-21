@@ -92,21 +92,18 @@ export default function PredictionForm({ onPredict, loading }) {
             <div className="grid grid-cols-2 gap-4">
               <div className="space-y-2">
                 <Label htmlFor="sites" className="text-sm font-medium text-teal-900">
-                  Primary Site
+                  Sites
                 </Label>
-                <Select value={formData.sites} onValueChange={(v) => handleInputChange("sites", v)}>
-                  <SelectTrigger className="border-teal-300 focus:border-teal-500">
-                    <SelectValue placeholder="Select" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="tongue">Tongue</SelectItem>
-                    <SelectItem value="floor">Floor of Mouth</SelectItem>
-                    <SelectItem value="palate">Palate</SelectItem>
-                    <SelectItem value="buccal">Buccal Mucosa</SelectItem>
-                    <SelectItem value="gingiva">Gingiva</SelectItem>
-                    <SelectItem value="other">Other</SelectItem>
-                  </SelectContent>
-                </Select>
+                <Input
+                  id="sites"
+                  type="number"
+                  min="1"
+                  max="3"
+                  placeholder="2"
+                  value={formData.sites}
+                  onChange={(e)=>handleInputChange("sites", e.target.value)}
+                  className="border-blue-300 focus:border-blue-500 focus:ring-blue-500"
+                />
               </div>
               <div className="space-y-2">
                 <Label htmlFor="doi" className="text-sm font-medium text-teal-900">
@@ -124,21 +121,22 @@ export default function PredictionForm({ onPredict, loading }) {
                 />
               </div>
             </div>
-            <div className="space-y-2">
-              <Label htmlFor="tStage" className="text-sm font-medium text-teal-900">
-                T Stage
-              </Label>
-              <Select value={formData.tStage} onValueChange={(v) => handleInputChange("tStage", v)}>
-                <SelectTrigger className="border-teal-300 focus:border-teal-500">
-                  <SelectValue placeholder="Select" />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="T1">T1</SelectItem>
-                  <SelectItem value="T2">T2</SelectItem>
-                  <SelectItem value="T3">T3</SelectItem>
-                  <SelectItem value="T4">T4</SelectItem>
-                </SelectContent>
-              </Select>
+            <div className="grid grid-cols-5 gap-4">
+              <div className="space-y-2 col-span-2">
+                <Label htmlFor="tStage" className="text-sm font-medium text-teal-900">
+                  T Stage
+                </Label>
+                <Input
+                  id="tStage"
+                  type="number"
+                  min="1"
+                  max="4"
+                  placeholder="3"
+                  value={formData.tStage}
+                  onChange={(e)=>handleInputChange("tStage", e.target.value)}
+                  className="border-teal-300 focus:border-teal-500 focus:ring-teal-500"
+                />
+              </div>
             </div>
           </div>
 
@@ -209,20 +207,22 @@ export default function PredictionForm({ onPredict, loading }) {
                 />
               </div>
             </div>
-            <div className="space-y-2">
-              <Label htmlFor="sii" className="text-sm font-medium text-cyan-900">
-                SII
-              </Label>
-              <Input
-                id="sii"
-                type="number"
-                min="0"
-                step="1"
-                placeholder="450"
-                value={formData.sii}
-                onChange={(e) => handleInputChange("sii", e.target.value)}
-                className="border-cyan-300 focus:border-cyan-500 focus:ring-cyan-500"
-              />
+            <div className="grid grid-cols-2">
+              <div className="space-y-2">
+                <Label htmlFor="sii" className="text-sm font-medium text-cyan-900">
+                  SII
+                </Label>
+                <Input
+                  id="sii"
+                  type="number"
+                  min="0"
+                  step="1"
+                  placeholder="450"
+                  value={formData.sii}
+                  onChange={(e) => handleInputChange("sii", e.target.value)}
+                  className="border-cyan-300 focus:border-cyan-500 focus:ring-cyan-500"
+                />
+              </div>
             </div>
           </div>
 
