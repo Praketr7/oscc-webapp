@@ -1,6 +1,6 @@
 "use client"
 
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "./ui/card"
 
 export default function PredictionResults({ predictions }) {
   const getNStageColor = (stage) => {
@@ -17,7 +17,7 @@ export default function PredictionResults({ predictions }) {
         return "bg-slate-50 border-slate-200"
     }
   }
-
+  
   const getENEColor = (risk) => {
     switch (risk) {
       case "Low":

@@ -1,9 +1,9 @@
 "use client"
 
 import { useState } from "react"
-import { Card, CardContent } from "@/components/ui/card"
-import PredictionForm from "@/components/prediction-form"
-import PredictionResults from "@/components/prediction-results"
+import { Card, CardContent } from "../components/ui/card"
+import PredictionForm from "../components/prediction-form"
+import PredictionResults from "../components/prediction-results"
 
 export default function Home() {
   const [predictions, setPredictions] = useState(null)
