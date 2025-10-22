@@ -18,18 +18,18 @@ export default function PredictionResults({ predictions }) {
     }
   }
   
-  const getENEColor = (risk) => {
-    switch (risk) {
-      case "Low":
-        return "bg-green-50 border-green-300"
-      case "Moderate":
-        return "bg-yellow-50 border-yellow-300"
-      case "High":
-        return "bg-red-50 border-red-300"
-      default:
-        return "bg-slate-50 border-slate-200"
-    }
-  }
+  // const getENEColor = (risk) => {
+  //   switch (risk) {
+  //     case "Low":
+  //       return "bg-green-50 border-green-300"
+  //     case "Moderate":
+  //       return "bg-yellow-50 border-yellow-300"
+  //     case "High":
+  //       return "bg-red-50 border-red-300"
+  //     default:
+  //       return "bg-slate-50 border-slate-200"
+  //   }
+  // }
 
   const getNStageTextColor = (stage) => {
     switch (stage) {
@@ -46,18 +46,18 @@ export default function PredictionResults({ predictions }) {
     }
   }
 
-  const getENETextColor = (risk) => {
-    switch (risk) {
-      case "Low":
-        return "text-green-700"
-      case "Moderate":
-        return "text-yellow-700"
-      case "High":
-        return "text-red-700"
-      default:
-        return "text-slate-700"
-    }
-  }
+  // const getENETextColor = (risk) => {
+  //   switch (risk) {
+  //     case "Low":
+  //       return "text-green-700"
+  //     case "Moderate":
+  //       return "text-yellow-700"
+  //     case "High":
+  //       return "text-red-700"
+  //     default:
+  //       return "text-slate-700"
+  //   }
+  // }
 
   return (
     <Card className="border-2 border-teal-200 shadow-lg bg-white">
@@ -73,13 +73,13 @@ export default function PredictionResults({ predictions }) {
         </div>
 
         {/* ENE Risk */}
-        <div className={`p-4 rounded-lg border-2 ${getENEColor(predictions.eneRisk)} shadow-sm`}>
+        {/* <div className={`p-4 rounded-lg border-2 ${getENEColor(predictions.eneRisk)} shadow-sm`}>
           <p className="text-sm font-medium text-slate-600 mb-1">ENE Risk Level</p>
           <p className={`text-3xl font-bold ${getENETextColor(predictions.eneRisk)}`}>{predictions.eneRisk}</p>
-        </div>
+        </div> */}
 
         {/* Confidence */}
-        <div className="p-4 rounded-lg border-2 border-blue-300 bg-blue-50 shadow-sm">
+        {/* <div className="p-4 rounded-lg border-2 border-blue-300 bg-blue-50 shadow-sm">
           <p className="text-sm font-medium text-slate-600 mb-2">Model Confidence</p>
           <div className="flex items-center gap-2">
             <div className="flex-1 bg-slate-200 rounded-full h-2">
@@ -90,7 +90,7 @@ export default function PredictionResults({ predictions }) {
             </div>
             <span className="text-lg font-semibold text-blue-700">{predictions.confidence}%</span>
           </div>
-        </div>
+        </div> */}
       </CardContent>
     </Card>
   )

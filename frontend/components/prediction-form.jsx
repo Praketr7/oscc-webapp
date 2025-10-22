@@ -28,16 +28,22 @@ export default function PredictionForm({ onPredict, loading }) {
     }))
   }
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault()
 
-    // Validate all fields are filled
     if (Object.values(formData).some((v) => v === "")) {
       alert("Please fill in all fields")
       return
     }
 
-    onPredict(formData)
+    // Call the passed function and wrap prediction in { nStage: ... }
+    try {
+      const prediction = await onPredict(formData)
+      // The parent component should handle setPrediction({ nStage: ... })
+    } catch (err) {
+      console.error("Prediction failed:", err)
+      alert("Prediction failed")
+    }
   }
 
   const isFormValid = Object.values(formData).every((v) => v !== "")
@@ -55,9 +61,7 @@ export default function PredictionForm({ onPredict, loading }) {
             <h3 className="font-semibold text-blue-900">Demographics</h3>
             <div className="grid grid-cols-2 gap-4">
               <div className="space-y-2">
-                <Label htmlFor="age" className="text-sm font-medium text-blue-900">
-                  Age (years)
-                </Label>
+                <Label htmlFor="age" className="text-sm font-medium text-blue-900">Age (years)</Label>
                 <Input
                   id="age"
                   type="number"
@@ -70,9 +74,7 @@ export default function PredictionForm({ onPredict, loading }) {
                 />
               </div>
               <div className="space-y-2">
-                <Label htmlFor="sex" className="text-sm font-medium text-blue-900">
-                  Sex
-                </Label>
+                <Label htmlFor="sex" className="text-sm font-medium text-blue-900">Sex</Label>
                 <Select value={formData.sex} onValueChange={(v) => handleInputChange("sex", v)}>
                   <SelectTrigger className="border-blue-300 focus:border-blue-500">
                     <SelectValue placeholder="Select" />
@@ -91,9 +93,7 @@ export default function PredictionForm({ onPredict, loading }) {
             <h3 className="font-semibold text-teal-900">Tumor Characteristics</h3>
             <div className="grid grid-cols-2 gap-4">
               <div className="space-y-2">
-                <Label htmlFor="sites" className="text-sm font-medium text-teal-900">
-                  Sites
-                </Label>
+                <Label htmlFor="sites" className="text-sm font-medium text-teal-900">Sites</Label>
                 <Input
                   id="sites"
                   type="number"
@@ -106,9 +106,7 @@ export default function PredictionForm({ onPredict, loading }) {
                 />
               </div>
               <div className="space-y-2">
-                <Label htmlFor="doi" className="text-sm font-medium text-teal-900">
-                  DOI (mm)
-                </Label>
+                <Label htmlFor="doi" className="text-sm font-medium text-teal-900">DOI (mm)</Label>
                 <Input
                   id="doi"
                   type="number"
@@ -123,9 +121,7 @@ export default function PredictionForm({ onPredict, loading }) {
             </div>
             <div className="grid grid-cols-5 gap-4">
               <div className="space-y-2 col-span-2">
-                <Label htmlFor="tStage" className="text-sm font-medium text-teal-900">
-                  T Stage
-                </Label>
+                <Label htmlFor="tStage" className="text-sm font-medium text-teal-900">T Stage</Label>
                 <Input
                   id="tStage"
                   type="number"
@@ -145,9 +141,7 @@ export default function PredictionForm({ onPredict, loading }) {
             <h3 className="font-semibold text-cyan-900">Immune Markers</h3>
             <div className="grid grid-cols-2 gap-4">
               <div className="space-y-2">
-                <Label htmlFor="nlr" className="text-sm font-medium text-cyan-900">
-                  NLR
-                </Label>
+                <Label htmlFor="nlr" className="text-sm font-medium text-cyan-900">NLR</Label>
                 <Input
                   id="nlr"
                   type="number"
@@ -160,9 +154,7 @@ export default function PredictionForm({ onPredict, loading }) {
                 />
               </div>
               <div className="space-y-2">
-                <Label htmlFor="pmr" className="text-sm font-medium text-cyan-900">
-                  PMR
-                </Label>
+                <Label htmlFor="pmr" className="text-sm font-medium text-cyan-900">PMR</Label>
                 <Input
                   id="pmr"
                   type="number"
@@ -177,9 +169,7 @@ export default function PredictionForm({ onPredict, loading }) {
             </div>
             <div className="grid grid-cols-2 gap-4">
               <div className="space-y-2">
-                <Label htmlFor="plr" className="text-sm font-medium text-cyan-900">
-                  PLR
-                </Label>
+                <Label htmlFor="plr" className="text-sm font-medium text-cyan-900">PLR</Label>
                 <Input
                   id="plr"
                   type="number"
@@ -192,9 +182,7 @@ export default function PredictionForm({ onPredict, loading }) {
                 />
               </div>
               <div className="space-y-2">
-                <Label htmlFor="lmr" className="text-sm font-medium text-cyan-900">
-                  LMR
-                </Label>
+                <Label htmlFor="lmr" className="text-sm font-medium text-cyan-900">LMR</Label>
                 <Input
                   id="lmr"
                   type="number"
@@ -209,9 +197,7 @@ export default function PredictionForm({ onPredict, loading }) {
             </div>
             <div className="grid grid-cols-2">
               <div className="space-y-2">
-                <Label htmlFor="sii" className="text-sm font-medium text-cyan-900">
-                  SII
-                </Label>
+                <Label htmlFor="sii" className="text-sm font-medium text-cyan-900">SII</Label>
                 <Input
                   id="sii"
                   type="number"
