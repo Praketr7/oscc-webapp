@@ -45,7 +45,7 @@ export default function PredictionForm({ onPredict, loading }) {
 
   const handleDownloadExcel = () => {
     const link = document.createElement("a")
-    link.href = "http://localhost:5000/download_excel" // adjust if needed
+    link.href = "https://oscc-webapp.onrender.com/download_excel" // adjust if needed
     link.download = "oscc_predictions.xlsx"
     link.click()
   }
