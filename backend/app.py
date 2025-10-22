@@ -197,6 +197,14 @@ def download_excel():
     else:
         return jsonify({"error": "Excel file not found"}), 404
 
+@app.route("/test_supabase")
+def test_supabase():
+    url = f"{SUPABASE_URL}/rest/v1/oscc_table"
+    r = requests.get(url, headers=HEADERS)
+    return jsonify({
+        "status": r.status_code,
+        "response": r.text
+    })
 
 if __name__ == "__main__":
     app.run(debug=True)
