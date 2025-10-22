@@ -5,5 +5,3 @@ pandas
 joblib
 python-dotenv
 gunicorn
-imbalanced-learn
-catboost==1.2
