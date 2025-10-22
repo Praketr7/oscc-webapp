@@ -5,17 +5,17 @@ from db import get_connection
 
 app = Flask(__name__)
 CORS(app)
+model_nstage = joblib.load("rusboost.pkl")
+model_ene = joblib.load("catboost.pkl")
 
-# Load model
 model = joblib.load("rusboost.pkl")
 sex_mapping = {"M": 1, "F": 2}
 
 @app.route('/predict', methods=['POST'])
 def predict():
     data = request.get_json()
-
-    # Map sex to integer
     sex_input = sex_mapping.get(data['sex'])
+
     age = int(data["age"])
     sex = sex_input
     sites = int(data["sites"])
@@ -27,16 +27,16 @@ def predict():
     lmr = float(data["lmr"])
     sii = float(data["sii"])
 
-    # Prepare input features
     inputs = [
         data["age"], sex_input, data["sites"], data["doi"],
         data["tStage"], data["nlr"], data["pmr"], data["plr"],
         data["lmr"], data["sii"]
     ]
-    
 
-    # Make prediction
-    predictions = model.predict([inputs])
+    prediction_nstage = model_nstage.predict([inputs])
+    prediction_ene = model_ene.predict([inputs])
+    return jsonify({'nstage': int(prediction_nstage[0]), "ene": int(prediction_ene[0])})
+    
     nstage = int(predictions[0])
     
 
