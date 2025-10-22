@@ -5,3 +5,4 @@ pandas
 joblib
 python-dotenv
 gunicorn
+imbalanced-learn
