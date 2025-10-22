@@ -44,18 +44,18 @@ export default function PredictionForm({ onPredict, loading }) {
 
   return (
     <Card className="border-2 border-teal-200 shadow-lg bg-white">
-      <CardHeader className="bg-gradient-to-r from-blue-50 to-teal-50 border-b-2 border-teal-200">
-        <CardTitle className="text-teal-900 pt-3">Clinical Parameters</CardTitle>
+      <CardHeader className="bg-gradient-to-r from-blue-50 to-teal-50 border-b-2 border-t-2 border-teal-200">
+        <CardTitle className="text-teal-900 pt-4">Clinical Parameters</CardTitle>
         <CardDescription className="text-teal-700 pb-3">Enter patient clinical data for prediction</CardDescription>
       </CardHeader>
       <CardContent>
         <form onSubmit={handleSubmit} className="space-y-6">
           {/* Demographics */}
-          <div className="space-y-4 p-4 bg-blue-50 rounded-lg border-l-4 border-blue-500">
-            <h3 className="font-semibold text-blue-900">Demographics</h3>
+          <div className="space-y-4 p-4 bg-teal-50 rounded-lg border-l-4 border-teal-500">
+            <h3 className="font-semibold text-teal-900">Demographics</h3>
             <div className="grid grid-cols-2 gap-4">
               <div className="space-y-2">
-                <Label htmlFor="age" className="text-sm font-medium text-blue-900">
+                <Label htmlFor="age" className="text-sm font-medium text-teal-900">
                   Age (years)
                 </Label>
                 <Input
@@ -70,7 +70,7 @@ export default function PredictionForm({ onPredict, loading }) {
                 />
               </div>
               <div className="space-y-2">
-                <Label htmlFor="sex" className="text-sm font-medium text-blue-900">
+                <Label htmlFor="sex" className="text-sm font-medium text-teal-900">
                   Sex
                 </Label>
                 <Select value={formData.sex} onValueChange={(v) => handleInputChange("sex", v)}>
