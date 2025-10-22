@@ -1,80 +1,99 @@
-from flask import Flask, request, jsonify
+from flask import Flask, request, jsonify, send_file
 import joblib
 from flask_cors import CORS
 from db import get_connection
+import pandas as pd
+import os
 
 app = Flask(__name__)
 CORS(app)
+
+# Load models
 model_nstage = joblib.load("rusboost.pkl")
 model_ene = joblib.load("catboost.pkl")
 
-model = joblib.load("rusboost.pkl")
 sex_mapping = {"M": 1, "F": 2}
+EXCEL_PATH = os.path.join(os.getcwd(), "output.xlsx")
 
 @app.route('/predict', methods=['POST'])
 def predict():
     data = request.get_json()
     sex_input = sex_mapping.get(data['sex'])
 
-    age = int(data["age"])
-    sex = sex_input
-    sites = int(data["sites"])
-    doi = float(data["doi"])
-    tStage = int(data["tStage"])
-    nlr = float(data["nlr"])
-    pmr = float(data["pmr"])
-    plr = float(data["plr"])
-    lmr = float(data["lmr"])
-    sii = float(data["sii"])
-
+    # Convert inputs
     inputs = [
-        data["age"], sex_input, data["sites"], data["doi"],
-        data["tStage"], data["nlr"], data["pmr"], data["plr"],
-        data["lmr"], data["sii"]
+        int(data["age"]),
+        sex_input,
+        int(data["sites"]),
+        float(data["doi"]),
+        int(data["tStage"]),
+        float(data["nlr"]),
+        float(data["pmr"]),
+        float(data["plr"]),
+        float(data["lmr"]),
+        float(data["sii"])
     ]
 
-    prediction_nstage = model_nstage.predict([inputs])
-    prediction_ene = model_ene.predict([inputs])
-    return jsonify({'nstage': int(prediction_nstage[0]), "ene": int(prediction_ene[0])})
-    
-    nstage = int(predictions[0])
-    
+    # Make predictions
+    prediction_nstage = int(model_nstage.predict([inputs])[0])
+    prediction_ene = int(model_ene.predict([inputs])[0])
 
-    # Save to DB, avoid duplicate tuples
     try:
         conn = get_connection()
         cursor = conn.cursor()
 
-        # Check if exact tuple exists
+        # Insert only if tuple doesn't exist
         cursor.execute("""
             SELECT 1 FROM oscc_table
             WHERE age=%s AND sex=%s AND sites=%s AND doi=%s AND tstage=%s
               AND nlr=%s AND pmr=%s AND plr=%s AND lmr=%s AND sii=%s
-        """, (
-            data["age"], sex_input, data["sites"], data["doi"], data["tStage"],
-            data["nlr"], data["pmr"], data["plr"], data["lmr"], data["sii"]
-        ))
+        """, tuple(inputs))
 
         if cursor.fetchone() is None:
-            # Insert if not exists
             cursor.execute("""
                 INSERT INTO oscc_table
-                (age, sex, sites, doi, tstage, nlr, pmr, plr, lmr, sii, nstage)
-                VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)
-            """, (
-                data["age"], sex_input, data["sites"], data["doi"], data["tStage"],
-                data["nlr"], data["pmr"], data["plr"], data["lmr"], data["sii"], nstage
-            ))
+                (age, sex, sites, doi, tstage, nlr, pmr, plr, lmr, sii, nstage, ene)
+                VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)
+            """, tuple(inputs + [prediction_nstage, prediction_ene]))
             conn.commit()
+            print("✅ Inserted new row in oscc_table.")
+        else:
+            print("ℹ️ Duplicate detected — no new insert.")
+
+        # Update Excel file after every insert
+        try:
+            df = pd.read_sql_query("SELECT * FROM oscc_table", conn)
+            df.to_excel(EXCEL_PATH, index=False)
+            print(f"✅ Excel updated at: {EXCEL_PATH}")
+        except Exception as ex:
+            print("⚠️ Excel update failed:", ex)
 
         cursor.close()
         conn.close()
 
     except Exception as e:
-        print("DB Error:", e)
+        print("❌ DB Error:", e)
         return jsonify({"error": "Database error"}), 500
 
-    return jsonify({"prediction": nstage})
+    return jsonify({
+        "nstage": prediction_nstage,
+        "ene": prediction_ene
+    })
+
+
+# New route for downloading the Excel file
+@app.route('/download_excel', methods=['GET'])
+def download_excel():
+    if os.path.exists(EXCEL_PATH):
+        return send_file(
+            EXCEL_PATH,
+            as_attachment=True,
+            download_name="oscc_predictions.xlsx",
+            mimetype="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
+        )
+    else:
+        return jsonify({"error": "Excel file not found"}), 404
+
 
 if __name__ == '__main__':
     app.run(debug=True)
