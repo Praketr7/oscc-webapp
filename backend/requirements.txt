@@ -6,4 +6,4 @@ joblib
 python-dotenv
 gunicorn
 imbalanced-learn
-catboost
+catboost==1.2
