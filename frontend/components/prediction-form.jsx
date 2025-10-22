@@ -66,14 +66,13 @@ export default function PredictionForm({ onPredict, loading }) {
             <div className="grid grid-cols-2 gap-4">
               <div className="space-y-2">
                 <Label htmlFor="age" className="text-sm font-medium text-teal-900">
-                  Age (years)
+                  Age 
                 </Label>
                 <Input
                   id="age"
                   type="number"
                   min="18"
                   max="120"
-                  placeholder="45"
                   value={formData.age}
                   onChange={(e) => handleInputChange("age", e.target.value)}
                   className="border-blue-300 focus:border-blue-500 focus:ring-blue-500"
@@ -107,7 +106,6 @@ export default function PredictionForm({ onPredict, loading }) {
                   type="number"
                   min="1"
                   max="3"
-                  placeholder="2"
                   value={formData.sites}
                   onChange={(e)=>handleInputChange("sites", e.target.value)}
                   className="border-blue-300 focus:border-blue-500 focus:ring-blue-500"
@@ -119,8 +117,7 @@ export default function PredictionForm({ onPredict, loading }) {
                   id="doi"
                   type="number"
                   min="0"
-                  step="0.1"
-                  placeholder="8.5"
+                  step="any"
                   value={formData.doi}
                   onChange={(e) => handleInputChange("doi", e.target.value)}
                   className="border-teal-300 focus:border-teal-500 focus:ring-teal-500"
@@ -135,7 +132,6 @@ export default function PredictionForm({ onPredict, loading }) {
                   type="number"
                   min="1"
                   max="4"
-                  placeholder="3"
                   value={formData.tStage}
                   onChange={(e)=>handleInputChange("tStage", e.target.value)}
                   className="border-teal-300 focus:border-teal-500 focus:ring-teal-500"
@@ -154,8 +150,7 @@ export default function PredictionForm({ onPredict, loading }) {
                   id="nlr"
                   type="number"
                   min="0"
-                  step="0.1"
-                  placeholder="2.5"
+                  step="any"
                   value={formData.nlr}
                   onChange={(e) => handleInputChange("nlr", e.target.value)}
                   className="border-cyan-300 focus:border-cyan-500 focus:ring-cyan-500"
@@ -167,8 +162,7 @@ export default function PredictionForm({ onPredict, loading }) {
                   id="pmr"
                   type="number"
                   min="0"
-                  step="0.1"
-                  placeholder="85"
+                  step="any"
                   value={formData.pmr}
                   onChange={(e) => handleInputChange("pmr", e.target.value)}
                   className="border-cyan-300 focus:border-cyan-500 focus:ring-cyan-500"
@@ -182,8 +176,7 @@ export default function PredictionForm({ onPredict, loading }) {
                   id="plr"
                   type="number"
                   min="0"
-                  step="0.1"
-                  placeholder="120"
+                  step="any"
                   value={formData.plr}
                   onChange={(e) => handleInputChange("plr", e.target.value)}
                   className="border-cyan-300 focus:border-cyan-500 focus:ring-cyan-500"
@@ -195,8 +188,7 @@ export default function PredictionForm({ onPredict, loading }) {
                   id="lmr"
                   type="number"
                   min="0"
-                  step="0.1"
-                  placeholder="4.2"
+                  step="any"
                   value={formData.lmr}
                   onChange={(e) => handleInputChange("lmr", e.target.value)}
                   className="border-cyan-300 focus:border-cyan-500 focus:ring-cyan-500"
@@ -210,8 +202,7 @@ export default function PredictionForm({ onPredict, loading }) {
                   id="sii"
                   type="number"
                   min="0"
-                  step="1"
-                  placeholder="450"
+                  step="any"
                   value={formData.sii}
                   onChange={(e) => handleInputChange("sii", e.target.value)}
                   className="border-cyan-300 focus:border-cyan-500 focus:ring-cyan-500"
