@@ -30,20 +30,24 @@ export default function PredictionForm({ onPredict, loading }) {
 
   const handleSubmit = async (e) => {
     e.preventDefault()
-
     if (Object.values(formData).some((v) => v === "")) {
       alert("Please fill in all fields")
       return
     }
 
-    // Call the passed function and wrap prediction in { nStage: ... }
     try {
-      const prediction = await onPredict(formData)
-      // The parent component should handle setPrediction({ nStage: ... })
+      await onPredict(formData)
     } catch (err) {
       console.error("Prediction failed:", err)
       alert("Prediction failed")
     }
+  }
+
+  const handleDownloadExcel = () => {
+    const link = document.createElement("a")
+    link.href = "http://localhost:5000/download_excel" // adjust if needed
+    link.download = "oscc_predictions.xlsx"
+    link.click()
   }
 
   const isFormValid = Object.values(formData).every((v) => v !== "")
@@ -225,6 +229,17 @@ export default function PredictionForm({ onPredict, loading }) {
             {loading ? "Predicting..." : "Predict N Stage & ENE"}
           </Button>
         </form>
+
+        {/* Download Excel Button */}
+        <div className="mt-4">
+          <Button
+            type="button"
+            onClick={handleDownloadExcel}
+            className="w-full bg-gradient-to-r from-green-600 to-teal-600 hover:from-green-700 hover:to-teal-700 text-white font-semibold shadow-md"
+          >
+            Download Excel
+          </Button>
+        </div>
       </CardContent>
     </Card>
   )
