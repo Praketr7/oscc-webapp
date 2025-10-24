@@ -26,6 +26,8 @@ model_nstage = joblib.load("rusboost.pkl")
 model_ene = joblib.load("catboost.pkl")
 sex_mapping = {"M": 1, "F": 2}
 
+# Exact feature order
+FEATURE_ORDER = ["age", "sex", "sites", "doi", "tstage", "nlr", "pmr", "plr", "lmr", "sii"]
 
 def insert_if_not_exists(data_dict):
     filter_parts = [f"{k}=eq.{v}" for k, v in data_dict.items() if k not in ["nstage", "ene"]]
@@ -47,7 +49,10 @@ def insert_if_not_exists(data_dict):
 def predict():
     data = request.get_json()
     try:
+        # Map sex to numeric
         sex_input = sex_mapping.get(data["sex"])
+
+        # Prepare inputs dictionary
         inputs = {
             "age": int(data["age"]),
             "sex": sex_input,
@@ -61,17 +66,24 @@ def predict():
             "sii": float(data["sii"])
         }
 
-        inputs["nstage"] = int(model_nstage.predict([list(inputs.values())])[0])
-        inputs["ene"] = int(model_ene.predict([list(inputs.values())])[0])
+        # Convert inputs to DataFrame with column names (fixes feature names warning)
+        input_df = pd.DataFrame([inputs], columns=FEATURE_ORDER)
 
+        # Make predictions
+        inputs["nstage"] = int(model_nstage.predict(input_df)[0])
+        inputs["ene"] = int(model_ene.predict(input_df)[0])
+
+        # Insert into Supabase if not exists
         insert_if_not_exists(inputs)
 
+        # Update Excel
         df_res = requests.get(f"{SUPABASE_URL}/rest/v1/oscc_table", headers=HEADERS).json()
         if df_res:
             df = pd.DataFrame(df_res)
             df.to_excel(EXCEL_PATH, index=False)
 
         return jsonify({"nstage": inputs["nstage"], "ene": inputs["ene"]})
+
     except Exception as e:
         print("❌ Prediction / Supabase error:", e)
         traceback.print_exc()
