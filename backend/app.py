@@ -5,6 +5,7 @@ import pandas as pd
 from flask import Flask, request, jsonify, send_file
 from flask_cors import CORS
 from dotenv import load_dotenv
+import traceback
 
 # Load environment variables
 load_dotenv()
@@ -87,7 +88,8 @@ def predict():
 
     except Exception as e:
         print("❌ Prediction / Supabase error:", e)
-        return jsonify({"error": "Internal server error"}), 500
+        traceback.print_exc()  # <- prints full error and line numbers
+        return jsonify({"error": str(e)}), 500
 
 
 @app.route('/download_excel', methods=['GET'])
