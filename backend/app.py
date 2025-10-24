@@ -26,19 +26,9 @@ model_nstage = joblib.load("rusboost.pkl")
 model_ene = joblib.load("catboost.pkl")
 sex_mapping = {"M": 1, "F": 2}
 
-# Model column names (exactly as used during training)
-MODEL_COLUMNS = [
-    "Age",
-    "Sex",
-    "Sites",
-    "DOI(mm)",
-    "T-stage",
-    "NLR",
-    "PMR",
-    "PLR",
-    "LM",
-    "SII=P*(N/L)(10power3/microliter)"
-]
+# Get model feature names dynamically
+NSTAGE_FEATURES = model_nstage.feature_names_in_
+ENE_FEATURES = model_ene.feature_names_in_
 
 def insert_if_not_exists(data_dict):
     filter_parts = [f"{k}=eq.{v}" for k, v in data_dict.items() if k not in ["nstage", "ene"]]
@@ -62,7 +52,7 @@ def predict():
         # Map sex to numeric
         sex_input = sex_mapping.get(data["sex"])
 
-        # Prepare DB input dict (for insertion)
+        # DB input dictionary (for Supabase)
         db_inputs = {
             "age": int(data["age"]),
             "sex": sex_input,
@@ -76,25 +66,23 @@ def predict():
             "sii": float(data["sii"])
         }
 
-        # Map to model column names
-        model_input_df = pd.DataFrame([{
-            "Age": db_inputs["age"],
-            "Sex": db_inputs["sex"],
-            "Sites": db_inputs["sites"],
-            "DOI(mm)": db_inputs["doi"],
-            "T-stage": db_inputs["tstage"],
-            "NLR": db_inputs["nlr"],
-            "PMR": db_inputs["pmr"],
-            "PLR": db_inputs["plr"],
-            "LM": db_inputs["lmr"],
-            "SII=P*(N/L)(10power3/microliter)": db_inputs["sii"]
+        # Map DB inputs to model_nstage columns dynamically
+        nstage_input_df = pd.DataFrame([{
+            NSTAGE_FEATURES[i]: db_inputs[val]
+            for i, val in enumerate(["age","sex","sites","doi","tstage","nlr","pmr","plr","lmr","sii"])
         }])
 
-        # Make predictions
-        db_inputs["nstage"] = int(model_nstage.predict(model_input_df)[0])
-        db_inputs["ene"] = int(model_ene.predict(model_input_df)[0])
+        # Map DB inputs to model_ene columns dynamically
+        ene_input_df = pd.DataFrame([{
+            ENE_FEATURES[i]: db_inputs[val]
+            for i, val in enumerate(["age","sex","sites","doi","tstage","nlr","pmr","plr","lmr","sii"])
+        }])
 
-        # Insert into Supabase if not exists
+        # Predictions
+        db_inputs["nstage"] = int(model_nstage.predict(nstage_input_df)[0])
+        db_inputs["ene"] = int(model_ene.predict(ene_input_df)[0])
+
+        # Insert into Supabase
         insert_if_not_exists(db_inputs)
 
         # Update Excel
