@@ -26,8 +26,19 @@ model_nstage = joblib.load("rusboost.pkl")
 model_ene = joblib.load("catboost.pkl")
 sex_mapping = {"M": 1, "F": 2}
 
-# Exact feature order
-FEATURE_ORDER = ["age", "sex", "sites", "doi", "tstage", "nlr", "pmr", "plr", "lmr", "sii"]
+# Model column names (exactly as used during training)
+MODEL_COLUMNS = [
+    "Age",
+    "Sex",
+    "Sites",
+    "DOI(mm)",
+    "T-stage",
+    "NLR",
+    "PMR",
+    "PLR",
+    "LM",
+    "SII=P*(N/L)(10power3/microliter)"
+]
 
 def insert_if_not_exists(data_dict):
     filter_parts = [f"{k}=eq.{v}" for k, v in data_dict.items() if k not in ["nstage", "ene"]]
@@ -44,7 +55,6 @@ def insert_if_not_exists(data_dict):
         return r.status_code in (200, 201)
     return False
 
-
 @app.route('/predict', methods=['POST'])
 def predict():
     data = request.get_json()
@@ -52,8 +62,8 @@ def predict():
         # Map sex to numeric
         sex_input = sex_mapping.get(data["sex"])
 
-        # Prepare inputs dictionary
-        inputs = {
+        # Prepare DB input dict (for insertion)
+        db_inputs = {
             "age": int(data["age"]),
             "sex": sex_input,
             "sites": int(data["sites"]),
@@ -66,15 +76,26 @@ def predict():
             "sii": float(data["sii"])
         }
 
-        # Convert inputs to DataFrame with column names (fixes feature names warning)
-        input_df = pd.DataFrame([inputs], columns=FEATURE_ORDER)
+        # Map to model column names
+        model_input_df = pd.DataFrame([{
+            "Age": db_inputs["age"],
+            "Sex": db_inputs["sex"],
+            "Sites": db_inputs["sites"],
+            "DOI(mm)": db_inputs["doi"],
+            "T-stage": db_inputs["tstage"],
+            "NLR": db_inputs["nlr"],
+            "PMR": db_inputs["pmr"],
+            "PLR": db_inputs["plr"],
+            "LM": db_inputs["lmr"],
+            "SII=P*(N/L)(10power3/microliter)": db_inputs["sii"]
+        }])
 
         # Make predictions
-        inputs["nstage"] = int(model_nstage.predict(input_df)[0])
-        inputs["ene"] = int(model_ene.predict(input_df)[0])
+        db_inputs["nstage"] = int(model_nstage.predict(model_input_df)[0])
+        db_inputs["ene"] = int(model_ene.predict(model_input_df)[0])
 
         # Insert into Supabase if not exists
-        insert_if_not_exists(inputs)
+        insert_if_not_exists(db_inputs)
 
         # Update Excel
         df_res = requests.get(f"{SUPABASE_URL}/rest/v1/oscc_table", headers=HEADERS).json()
@@ -82,13 +103,12 @@ def predict():
             df = pd.DataFrame(df_res)
             df.to_excel(EXCEL_PATH, index=False)
 
-        return jsonify({"nstage": inputs["nstage"], "ene": inputs["ene"]})
+        return jsonify({"nstage": db_inputs["nstage"], "ene": db_inputs["ene"]})
 
     except Exception as e:
         print("❌ Prediction / Supabase error:", e)
         traceback.print_exc()
         return jsonify({"error": str(e)}), 500
-
 
 @app.route('/download_excel', methods=['GET'])
 def download_excel():
@@ -101,13 +121,11 @@ def download_excel():
         )
     return jsonify({"error": "Excel file not found"}), 404
 
-
 @app.route("/test_supabase")
 def test_supabase():
     url = f"{SUPABASE_URL}/rest/v1/oscc_table"
     r = requests.get(url, headers=HEADERS)
     return jsonify({"status": r.status_code, "response": r.text})
-
 
 if __name__ == "__main__":
     port = int(os.environ.get("PORT", 10000))
