@@ -6,7 +6,6 @@
       "use": "@vercel/next"
     }
   ],
-  "routes": [
-    { "src": "/(.*)", "dest": "/$1" }
-  ]
+  "routes": [],
+  "rootDirectory": "frontend"
 }
