@@ -1,8 +1,6 @@
-from flask import Flask, request, jsonify, send_file
 import joblib
+from flask import Flask, request, jsonify
 from flask_cors import CORS
-import pandas as pd
-import os
 import traceback
 
 app = Flask(__name__)
@@ -13,70 +11,47 @@ model_nstage = joblib.load("rusboost.pkl")
 model_ene = joblib.load("catboost.pkl")
 
 sex_mapping = {"M": 1, "F": 2}
-EXCEL_PATH = os.path.join(os.getcwd(), "output.xlsx")
 
 @app.route('/predict', methods=['POST'])
 def predict():
     data = request.get_json()
-    try:
-        sex_input = sex_mapping.get(data['sex'])
+    print("📝 Received JSON:", data)  # Debug: show incoming request
 
-        # Convert inputs
+    try:
+        sex_input = sex_mapping.get(data.get("sex"))
+        print("🔹 Mapped sex:", sex_input)  # Debug
+
         inputs = [
-            int(data["age"]),
+            int(data.get("age", 0)),
             sex_input,
-            int(data["sites"]),
-            float(data["doi"]),
-            int(data["tStage"]),
-            float(data["nlr"]),
-            float(data["pmr"]),
-            float(data["plr"]),
-            float(data["lmr"]),
-            float(data["sii"])
+            int(data.get("sites", 0)),
+            float(data.get("doi", 0.0)),
+            int(data.get("tStage", 0)),
+            float(data.get("nlr", 0.0)),
+            float(data.get("pmr", 0.0)),
+            float(data.get("plr", 0.0)),
+            float(data.get("lmr", 0.0)),
+            float(data.get("sii", 0.0))
         ]
+        print("🔹 Model input list:", inputs)  # Debug
 
         # Make predictions
         prediction_nstage = int(model_nstage.predict([inputs])[0])
         prediction_ene = int(model_ene.predict([inputs])[0])
 
-        # Save Excel locally
-        df = pd.DataFrame([{
-            "age": inputs[0],
-            "sex": inputs[1],
-            "sites": inputs[2],
-            "doi": inputs[3],
-            "tstage": inputs[4],
-            "nlr": inputs[5],
-            "pmr": inputs[6],
-            "plr": inputs[7],
-            "lmr": inputs[8],
-            "sii": inputs[9],
-            "nstage": prediction_nstage,
-            "ene": prediction_ene
-        }])
-        df.to_excel(EXCEL_PATH, index=False)
+        print("✅ Predictions:", {"nstage": prediction_nstage, "ene": prediction_ene})  # Debug
 
         return jsonify({
             "nstage": prediction_nstage,
             "ene": prediction_ene
         })
+
     except Exception as e:
         print("❌ Error during prediction:", e)
         traceback.print_exc()
         return jsonify({"error": str(e)}), 500
 
-@app.route('/download_excel', methods=['GET'])
-def download_excel():
-    if os.path.exists(EXCEL_PATH):
-        return send_file(
-            EXCEL_PATH,
-            as_attachment=True,
-            download_name="oscc_predictions.xlsx",
-            mimetype="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
-        )
-    else:
-        return jsonify({"error": "Excel file not found"}), 404
-
-if __name__ == '__main__':
-    port = int(os.environ.get("PORT", 10000))
+if __name__ == "__main__":
+    port = 10000
+    print(f"🚀 Starting Flask app on port {port}...")
     app.run(host="0.0.0.0", port=port, debug=True)
