@@ -1,19 +1,19 @@
 # Node modules
-frontend/node_modules/
+node_modules/
 
 # Next.js build output
-frontend/.next/
-frontend/out/
+.next/
+out/
 
 # Optional: production build folder
-frontend/build/
+build/
 
 # Testing
-frontend/coverage/
+coverage/
 
 # Env files
-frontend/.env*
 .env*
+frontend/.env*   # in case something still left in old folder
 
 # Misc
 .DS_Store
@@ -26,7 +26,7 @@ yarn-error.log*
 .pnpm-debug.log*
 
 # Vercel
-frontend/.vercel/
+.vercel/
 
 # TypeScript
 *.tsbuildinfo
