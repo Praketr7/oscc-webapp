@@ -9,7 +9,7 @@ export default function Page() {
 
   const handlePredict = async (formData) => {
     setLoading(true);
-    setResult({nstage:"", ene:""});
+    setResult({nstage:"", ene:""}); //
     try {
       const res = await fetch("https://oscc-webapp.onrender.com/predict", {
         method: "POST",
