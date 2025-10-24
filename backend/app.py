@@ -22,13 +22,12 @@ HEADERS = {
 }
 
 EXCEL_PATH = os.path.join(os.getcwd(), "output.xlsx")
+
+# Load models
 model_nstage = joblib.load("rusboost.pkl")
 model_ene = joblib.load("catboost.pkl")
-sex_mapping = {"M": 1, "F": 2}
 
-# Get model feature names dynamically
-NSTAGE_FEATURES = model_nstage.feature_names_in_
-ENE_FEATURES = model_ene.feature_names_in_
+sex_mapping = {"M": 1, "F": 2}
 
 def insert_if_not_exists(data_dict):
     filter_parts = [f"{k}=eq.{v}" for k, v in data_dict.items() if k not in ["nstage", "ene"]]
@@ -52,7 +51,7 @@ def predict():
         # Map sex to numeric
         sex_input = sex_mapping.get(data["sex"])
 
-        # DB input dictionary (for Supabase)
+        # DB input dict (for Supabase insertion)
         db_inputs = {
             "age": int(data["age"]),
             "sex": sex_input,
@@ -66,23 +65,15 @@ def predict():
             "sii": float(data["sii"])
         }
 
-        # Map DB inputs to model_nstage columns dynamically
-        nstage_input_df = pd.DataFrame([{
-            NSTAGE_FEATURES[i]: db_inputs[val]
-            for i, val in enumerate(["age","sex","sites","doi","tstage","nlr","pmr","plr","lmr","sii"])
-        }])
+        # Map DB input values to model columns exactly as model expects
+        nstage_input_df = pd.DataFrame([list(db_inputs.values())], columns=model_nstage.feature_names_in_)
+        ene_input_df = pd.DataFrame([list(db_inputs.values())], columns=model_ene.feature_names_in_)
 
-        # Map DB inputs to model_ene columns dynamically
-        ene_input_df = pd.DataFrame([{
-            ENE_FEATURES[i]: db_inputs[val]
-            for i, val in enumerate(["age","sex","sites","doi","tstage","nlr","pmr","plr","lmr","sii"])
-        }])
-
-        # Predictions
+        # Make predictions
         db_inputs["nstage"] = int(model_nstage.predict(nstage_input_df)[0])
         db_inputs["ene"] = int(model_ene.predict(ene_input_df)[0])
 
-        # Insert into Supabase
+        # Insert into Supabase if not exists
         insert_if_not_exists(db_inputs)
 
         # Update Excel
