@@ -43,13 +43,6 @@ export default function PredictionForm({ onPredict, loading }) {
     }
   }
 
-  const handleDownloadExcel = () => {
-    const link = document.createElement("a")
-    link.href = "https://oscc-webapp.onrender.com/download_excel" // adjust if needed
-    link.download = "oscc_predictions.xlsx"
-    link.click()
-  }
-
   const isFormValid = Object.values(formData).every((v) => v !== "")
 
   return (
@@ -220,17 +213,6 @@ export default function PredictionForm({ onPredict, loading }) {
             {loading ? "Predicting..." : "Predict N Stage & ENE"}
           </Button>
         </form>
-
-        {/* Download Excel Button */}
-        <div className="mt-4">
-          <Button
-            type="button"
-            onClick={handleDownloadExcel}
-            className="w-full bg-gradient-to-r from-green-600 to-teal-600 hover:from-green-700 hover:to-teal-700 text-white font-semibold shadow-md"
-          >
-            Download Excel
-          </Button>
-        </div>
       </CardContent>
     </Card>
   )
